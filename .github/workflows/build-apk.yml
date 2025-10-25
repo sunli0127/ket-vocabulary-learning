@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Android APK - Manual SDK
 
 on:
   push:
@@ -20,14 +20,24 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
     
-    - name: Set up Android SDK
-      uses: android-actions/setup-android@v3
-      with:
-        packages: |
-          platform-tools
-          platforms;android-33
-          build-tools;33.0.0
-        accept-android-sdk-licenses: true
+    - name: Set up Android SDK manually
+      run: |
+        mkdir -p $ANDROID_HOME
+        cd $ANDROID_HOME
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
+        unzip -q commandlinetools-latest.zip
+        mkdir -p cmdline-tools/latest
+        mv cmdline-tools/* cmdline-tools/latest/ 2>/dev/null || true
+        export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
+        yes | sdkmanager --licenses
+        sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.0"
+      env:
+        ANDROID_HOME: ${{ github.workspace }}/android-sdk
+    
+    - name: Set Android environment
+      run: |
+        echo "ANDROID_HOME=${{ github.workspace }}/android-sdk" >> $GITHUB_ENV
+        echo "${{ github.workspace }}/android-sdk/cmdline-tools/latest/bin:${{ github.workspace }}/android-sdk/platform-tools" >> $GITHUB_PATH
     
     - name: Cache Gradle packages
       uses: actions/cache@v3
