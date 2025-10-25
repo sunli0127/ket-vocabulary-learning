@@ -23,9 +23,11 @@ jobs:
     - name: Set up Android SDK
       uses: android-actions/setup-android@v3
       with:
-        api-level: 33
-        build-tools: 33.0.0
-        ndk-version: 25.1.8937393
+        packages: |
+          platform-tools
+          platforms;android-33
+          build-tools;33.0.0
+        accept-android-sdk-licenses: true
     
     - name: Cache Gradle packages
       uses: actions/cache@v3
@@ -38,9 +40,6 @@ jobs:
           ${{ runner.os }}-gradle-
     
     - name: Make gradlew executable
-      run: chmod +x gradlew
-    
-    - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     
     - name: Build debug APK
